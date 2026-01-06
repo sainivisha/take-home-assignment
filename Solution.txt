@@ -1,0 +1,54 @@
+Part 1: Code Review & Debugging
+
+Issues Identified
+
+1. Missing Input Validation ( we can use Zod library for validation here)
+Issue:No validation of incoming request data. Missing fields will cause KeyError.
+Production Impact API crashes with 500 errors when clients send incomplete payloads
+
+2. No Transaction Management
+Issue : two separate commits create a race condition. If the second commit fails, we get orphaned products without inventory.
+Production Impact:Data inconsistency. Products exist but can't be sold because inventory records are missing.
+
+3. Missing SKU Uniqueness Constraint
+Issue:No check for duplicate SKUs before insertion.
+Production Impact:Database constraint violation errors (if unique index exists) or duplicate SKUs (if no constraint), breaking business logic.
+
+4. No Error Handling
+Issue:Database errors, connection issues, or constraint violations crash the endpoint
+Production Impact:Poor user experience, unclear error messages, difficult debugging
+
+5. Missing HTTP Status Codes
+Issue:Returns 200 for all responses, even failures.
+Production Impact:Clients can't distinguish success from failure programmatically
+
+6. Decimal Precision Not Specified
+Issue:Price field might lose precision if not properly typed in database
+Production Impact:Financial calculations become inaccurate over time
+
+7. No Authentication/Authorization
+Issue:Anyone can create products for any warehouse
+Production Impact:Security vulnerability allowing unauthorized access
+
+8. Missing Response Data
+Issue:Doesn't return the created product details for client use
+Production Impact:Clients need additional API calls to fetch product data
+
+Corrected Implementation
+
+- wrote correct implementation of the code in part1-code-review.js
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Part 2: Database Design
+
+Used PostgreSQL Schema (can also use Prisma ORM for type safe queries)
+CODE FOR SQL is in part2-database-design.sql
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Part 3: API Implementation
+
+CODE FOR JS is in part3-low-stock-alerts.js
